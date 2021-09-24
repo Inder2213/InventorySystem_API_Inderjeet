@@ -1,0 +1,191 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Product</h2>
+
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <br />
+                <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name">
+                            Product Name <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <input type="text" id="ProductName" required="required" class="form-control col-md-7 col-xs-12" name="ProductName">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="Price">
+                            Product Price <span class="required">*</span>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <input type="text" id="ProductPrice" required="required" class="form-control col-md-7 col-xs-12" name="ProductPrice">
+                        </div>
+                    </div>
+
+
+                    <div class="ln_solid"></div>
+                    <input type="hidden" id="ID" name="ID" />
+                    <div class="form-group">
+                        <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                            <button type="submit" class="btn btn-success" id="btn1">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Product List</h2>
+
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="table-responsive">
+                <table class="table table-bordered jambo_table bulk_action" id="tab1">
+                    <tr class="headings">
+                        <th class="column-title" width="180px"># </th>
+                        <th class="column-title" width="180px">Product Name </th>
+                        <th class="column-title" width="180px">Product Price </th>
+
+
+                        <th class="column-title no-link last" width="240px">
+                            <span class="nobr">Action</span>
+                        </th>
+                    </tr>
+
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+<script>
+    function AddEditRecord(id, productName, productPrice) {
+        $("#ProductName").val(productName);
+        $("#ProductPrice").val(productPrice);
+        $("#ID").val(id);
+    }
+
+
+
+    function UpdateRecord() {
+        //debugger;
+        //var dID = parseInt($("#Name").val());
+        $.ajax({
+            type: "Put",
+            url: "/api/Products/" + $("#ID").val(),
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify({
+                ID: parseInt($("#ID").val()),
+                ProductName: $("#ProductName").val(),
+                ProductPrice: $("#ProductPrice").val(),
+
+            }),
+
+            dataType: "JSON",
+
+            success: function (data) {
+                $("#tab1").find("tr:gt(0)").remove();
+                $.getJSON("/api/Products/", function (data) {
+                    $("#tab1").css("display", "block");
+                    $.each(data, function (key, val) {
+                        $("<tr class='even pointer'><td width='180px'>" + val.id + "</td><td width='180px'>" + val.productName + "</td><td width='180px'>" + val.productPrice + "</td><td width='240px'>" + "<button class='btn btn-warning btn-xs' onclick='AddEditRecord(" + val.id + ',"' + val.productName + '","' + val.productPrice + '"' + ");'" + ">Edit</button> <button class='btn btn-danger btn-xs' onclick='DeleteRecord(" + val.id + ");'" + ">Delete</button>" + "</td></tr>").appendTo($("#tab1"));
+                    })
+                })
+                window.location.href("/Home/Index");
+            }
+        });
+    }
+    //Delete
+    function DeleteRecord(ID) {
+        $.ajax({
+
+            type: "DELETE",
+
+            contentType: "application/json;charset=utf-8",
+
+            url: "/api/Products/" + ID,
+
+            data: JSON.stringify({
+                id: ID,
+            }),
+            dataType: "JSON",
+            success: function (data) {
+                $("#tab1").find("tr:gt(0)").remove();
+                $.getJSON("/api/Products/", function (data) {
+                    $("#tab1").css("display", "block");
+                    $.each(data, function (key, val) {
+                        $("<tr class='even pointer'><td width='180px'>" + val.id + "</td><td width='180px'>" + val.productName + "</td><td width='180px'>" + val.productPrice + "</td><td width='240px'>" + "<button class='btn btn-warning btn-xs' onclick='AddEditRecord(" + val.id + ',"' + val.productName + '","' + val.productPrice + '"' + ");'" + ">Edit</button> <button class='btn btn-danger btn-xs' onclick='DeleteRecord(" + val.id + ");'" + ">Delete</button>" + "</td></tr>").appendTo($("#tab1"));
+
+
+                    })
+
+                })
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        debugger;
+        //alert('hi');
+        $("#tab1").css("display", "none");
+        $.getJSON("/api/Products/", function (data) {
+            $("#tab1").css("display", "block");
+            $.each(data, function (key, val) {
+                $("<tr class='even pointer'><td width='180px'>" + val.id + "</td><td width='180px'>" + val.productName + "</td><td width='180px'>" + val.productPrice + "</td><td width='240px'>" + "<button class='btn btn-warning btn-xs' onclick='AddEditRecord(" + val.id + ',"' + val.productName + '","' + val.productPrice + '"' + ");'" + ">Edit</button> <button class='btn btn-danger btn-xs' onclick='DeleteRecord(" + val.id + ");'" + ">Delete</button>" + "</td></tr>").appendTo($("#tab1"));
+
+            });
+        })
+
+        //POST
+        $("#btn1").click(function () {
+            if ($("#ID").val() > 0) {
+                UpdateRecord();
+            }
+            else {
+                var ProductName = $("#ProductName").val();
+                var ProductPrice = $("#ProductPrice").val();
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json;charset=utf-8",
+                    url: "/api/Products/",
+                    data: JSON.stringify({
+                        ProductName, ProductPrice
+
+                    }),
+                    dataType: "JSON",
+                    success: function (data) {
+                        $("#ID").val('');
+                        $("#tab1").find("tr:gt(0)").remove();
+                        $.getJSON("/api/Products/", function (data) {
+                            $("#tab1").css("display", "block");
+                            $.each(data, function (key, val) {
+                                $("<tr class='even pointer'><td width='180px'>" + val.id + "</td><td width='180px'>" + val.productName + "</td><td width='180px'>" + val.productPrice + "</td><td width='240px'>" + "<button class='btn btn-warning btn-xs' onclick='AddEditRecord(" + val.id + ',"' + val.productName + '","' + val.productPrice + '"' + ");'" + ">Edit</button> <button class='btn btn-danger btn-xs' onclick='DeleteRecord(" + val.id + ");'" + ">Delete</button>" + "</td></tr>").appendTo($("#tab1"));
+
+
+                            })
+
+                        })
+                    }
+                });
+            }
+        })
+    });
+
+</script>
+
